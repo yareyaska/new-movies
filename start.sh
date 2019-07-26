@@ -1,4 +1,4 @@
-export MOVIE_API_KEY=56ee863ccdd605612b293389b4617cd2
-export SECRET_KEY=adzumi
+export MOVIE_API_KEY=56d4aac0b581e2f43c0e41d2ca567f6f
+export SECRET_KEY=yu
 
 python3.6 manage.py server
