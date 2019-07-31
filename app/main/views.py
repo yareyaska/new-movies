@@ -3,6 +3,7 @@ from . import main
 from ..requests import get_movies,get_movie,search_movie
 from .forms import ReviewForm
 from ..models import Review
+from flask_login import login_required
 
 # Views
 @main.route('/')
@@ -22,7 +23,7 @@ def index():
     search_movie = request.args.get('movie_query')
 
     if search_movie:
-        return redirect(url_for('search',movie_name=search_movie))
+        return redirect(url_for('main.search',movie_name=search_movie))
     else:
         return render_template('index.html', title = title, popular = popular_movies, upcoming = upcoming_movie, now_showing = now_showing_movie )
 
@@ -51,18 +52,21 @@ def search(movie_name):
     title = f'search results for {movie_name}'
     return render_template('search.html',movies = searched_movies)
 
-
 @main.route('/movie/review/new/<int:id>', methods = ['GET','POST'])
+@login_required
 def new_review(id):
-    form = ReviewForm()
-    movie = get_movie(id)
 
-    if form.validate_on_submit():
-        title = form.title.data
-        review = form.review.data
-        new_review = Review(movie.id,title,movie.poster,review)
-        new_review.save_review()
-        return redirect(url_for('movie',id = movie.id ))
+    @main.route('/movie/review/new/<int:id>', methods = ['GET','POST'])
+    def new_review(id):
+        form = ReviewForm()
+        movie = get_movie(id)
 
-    title = f'{movie.title} review'
-    return render_template('new_review.html',title = title, review_form=form, movie=movie)
+        if form.validate_on_submit():
+            title = form.title.data
+            review = form.review.data
+            new_review = Review(movie.id,title,movie.poster,review)
+            new_review.save_review()
+            return redirect(url_for('main.movie',id = movie.id ))
+
+        title = f'{movie.title} review'
+        return render_template('new_review.html',title = title, review_form=form, movie=movie)
